@@ -1,11 +1,10 @@
-package get_diavgeia;
 import java.net.*;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.io.*;
-public class progr {
+public class program {
 	static String mainh="https://diavgeia.gov.gr/opendata/search/advanced?q=";
-	static String query="decisionType:\"ΓΝΩΜΟΔΟΤΗΣΗ\"ANDorganizationUid:\"50024\"";
+	static String query="decisionType:\"ΓΝΩΜΟΔΟΤΗΣΗ\"ANDorganizationUid:\"50024\"";//gnwmodotiseis apo NSK
 	static String page="&page=0";
 	static final int pnum=18;
 	public static String getHTML(String urlToRead) throws Exception {
@@ -22,48 +21,47 @@ public class progr {
 	      System.out.println("RESPONSE OK");
 	      return result.toString();
 	   }
-	public static void main(String[] args)
-	{
-		int i=0;
-		System.out.println("START");
-			for(int u=1;u<=pnum;u++)
-			{
-				try {
-			String res = getHTML(mainh+query+page);
-			String[] tok = res.split(",");
-			page="&page="+Integer.toString(u-1);
-			System.out.println("At page:" + mainh+query+page);
-			for(String s:tok)
-			{
-				if(s.startsWith("\"documentUrl\"")==true)
+	public static void main(String[] args) {
+		System.out.println("***Diavgeia API Downloader***");
+		for(int i=1;i<=pnum;i++)
+		{
+			try {
+				String res = getHTML(mainh+query+page);
+				String[] tok = res.split(",");
+				page = "&page="+Integer.toString(i-1); 
+				System.out.println("At WebPage: "+ mainh+query+page);
+				for(String s:tok)
 				{
-					String[] p = s.split("\"");
-					//System.out.println(p.length);
-					if(p.length>3)
+					if(s.startsWith("\"documentUrl\"")==true)
 					{
-						String durl=p[3];
-						String fname=getOriginalName(durl);
-						fname = fname.replaceAll("[\\\\/:*?\"<>|]", "");
-						try {
-						downloadUsingNIO(durl, "C:/Users/Public/Documents/"+fname+".pdf");
-						i+=1;
-						}catch(Exception oo)
+						String[] p = s.split("\"");
+						if(p.length>3)//etc if indeed contains download url
 						{
-							
+							String durl = p[3];
+							String fname = getOriginalName(durl);
+							fname = fname.replaceAll("[\\\\/:*?\"<>|]", "");
+							int success=0;
+							while(success==0)
+							{
+								try
+								{
+									downloadUsingNIO(durl, "C:/Users/Public/Documents/Diavgeia Documents/"+fname+".pdf");
+									success=1;
+								}catch(Exception o)
+								{
+									success=0;
+								}
+							}
 						}
-						
 					}
 				}
+			}catch(Exception e)
+			{
+				System.out.println("Page " + i+">> "+e.toString());
 			}
-			}
-				catch (Exception e) {
-					
-				}
-			
-		} 
-			System.out.println(i+ " documents");
+		}
 	}
-	static String getOriginalName(String url)
+	private static String getOriginalName(String url)
 	{
 		String res="";
 		int i=0;
