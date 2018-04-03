@@ -1,0 +1,90 @@
+import java.io.*;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripperByArea;
+public class pdf_filter {
+	private static final String source="ΒΖ6ΙΟΡΡΕ-ΙΩΞ.pdf";
+	//private static final String source="4Α1ΑΟΡΡΕ-Ψ.pdf";
+	private static final String destintation="";
+	
+	
+	
+	
+	
+	public static void main(String[] args) {
+		int i=0;
+		 File dir = new File("C:\\Users\\Public\\Documents\\Diavgeia Documents\\ΓΝΩΜΟΔΟΤΗΣΕΙΣ ΝΣΚ(1655)");
+		  File[] directoryListing = dir.listFiles();
+		  if (directoryListing != null) 
+		  {
+		    for (File child : directoryListing) {
+		    	try {
+		    	String[] lines = LoadPDFText(child.getAbsolutePath());
+		    	if(isScan(lines,child.getName())==false)
+		    	{
+		    		if(child.renameTo(new File("C:\\Users\\Public\\Documents\\Diavgeia Documents\\ΓΝΩΜΟΔΟΤΗΣΕΙΣ ΝΣΚ ΚΕΙΜΕΝΟ\\" + child.getName()))) {
+		    			System.out.println("File ok");
+		    		}
+		    		i++;
+		    	}
+		    	}catch(Exception l) {}
+		    }
+		  }
+		  System.out.println(i);
+	}
+	
+	
+	
+	
+	
+	
+	public static String[] LoadPDFText(String filename)
+	{
+		try {
+			String[] lines;
+		    File RF = new File(filename);
+		    PDDocument document = PDDocument.load(RF);
+            document.getClass();
+            PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+            stripper.setSortByPosition(true);
+            PDFTextStripper tStripper = new PDFTextStripper();
+            String pdfFileInText = tStripper.getText(document);
+            lines = pdfFileInText.split("\\r?\\n");
+            document.close();
+            return lines;
+		}catch(Exception e) { System.out.println("Could not parse PDF: "+e.toString()); }
+		return null;
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	private static boolean isScan(String[] lines,String fname)
+	{
+		int lines_count=0;
+		String patern="ΑΔΑ: "+ fname.replace(".pdf", "");
+		for(String s:lines)
+		{
+			if(s.equals(patern)==true)
+			{
+				
+			}else
+			{
+				lines_count++;
+			}
+		}
+		if(lines_count>0)
+		{
+			return false;//einai pdf me keimeno
+		}else
+		{
+			return true;
+		}
+	}
+}
